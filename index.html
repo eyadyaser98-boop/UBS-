@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UBC | بواسطة أنس علاء</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { 
+            --primary: #13483a; --secondary: #00b894; --accent: #f39c12; 
+            --main-gradient: linear-gradient(135deg, #13483a, #a29bfe);
+            --card-bg: #ffffff; --text-color: #333;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; transition: 0.3s; }
+        body { background: #fdfdfd; color: var(--text-color); overflow-x: hidden; }
+
+        /* ستايل الصفحات الملونة */
+        .auth-page { 
+            display: none; background: var(--main-gradient); min-height: 100vh; 
+            justify-content: center; align-items: center; flex-direction: column; padding: 20px;
+        }
+        .glass-box { 
+            background: rgba(255, 255, 255, 0.9); padding: 30px; border-radius: 25px; 
+            width: 100%; max-width: 400px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        /* الشريط العلوي الشفاف (كما في الصورة) */
+        header { 
+            background: rgba(19, 72, 58, 0.85); /* أخضر شفاف */
+            backdrop-filter: blur(15px);
+            color: white; padding: 12px 5%; 
+            display: none; justify-content: space-between; align-items: center; 
+            position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .user-badge { 
+            background: var(--accent); color: white; padding: 6px 15px; 
+            border-radius: 50px; font-size: 0.85rem; font-weight: bold; 
+        }
+
+        .page-section { display: none; padding: 30px 5%; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        input, select { padding: 12px; margin: 10px 0; width: 100%; border-radius: 12px; border: 1px solid #ddd; }
+        .btn { padding: 12px 25px; border: none; border-radius: 50px; cursor: pointer; font-weight: bold; display: inline-block; text-decoration: none; text-align: center; }
+        .btn-orange { background: #ff7f50; color: white; width: 100%; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-whatsapp { background: #25D366; color: white; width: 100%; margin-top: 15px; }
+        
+        .hero { background: var(--main-gradient); color: white; padding: 50px 20px; text-align: center; border-radius: 0 0 40px 40px; margin-bottom: 30px; }
+        .results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 20px; }
+        .card { background: white; padding: 25px; border-radius: 20px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.05); border-top: 5px solid var(--secondary); }
+        
+        .lecture-content { display: none; margin-top: 15px; padding: 15px; background: #f9f9f9; border-radius: 10px; font-size: 0.9rem; line-height: 1.6; color: #555; border-right: 3px solid var(--accent); }
+        #downloadCanvas { display: none; }
+    </style>
+</head>
+<body>
+
+<section id="signup-screen" class="auth-page" style="display: flex;">
+    <div class="glass-box">
+        <h1 style="color: var(--primary);">UBC CREATOR 💥</h1>
+        <p>أنشئ حسابك للبدء مع أنس علاء</p>
+        <input type="text" id="regName" placeholder="اسمك بالكامل">
+        <input type="email" id="regEmail" placeholder="بريدك الإلكتروني">
+        <input type="password" id="regPass" placeholder="اختر كلمة مرور">
+        <button class="btn btn-orange" onclick="handleSignup()">إنشاء حساب جديد ✅</button>
+        <p style="margin-top:15px; font-size:0.8rem; cursor:pointer;" onclick="showAuthPage('login-screen')">عندك حساب؟ سجل دخول</p>
+    </div>
+</section>
+
+<section id="login-screen" class="auth-page">
+    <div class="glass-box">
+        <h1 style="color: var(--primary);">تسجيل دخول 🔐</h1>
+        <div id="login-step-main">
+            <input type="email" id="loginEmail" placeholder="الإيميل المسجل">
+            <input type="password" id="loginPass" placeholder="كلمة المرور">
+            <button class="btn btn-orange" onclick="requestOTP()">إرسال كود الدخول</button>
+        </div>
+        <div id="otp-verify-area" style="display: none;">
+            <p style="color:green; margin-bottom:10px;">تم إرسال كود التحقق لبريدك</p>
+            <input type="text" id="loginOTP" placeholder="ادخل الكود المكون من 4 أرقام">
+            <button class="btn btn-primary" style="width:100%" onclick="finalVerify()">تأكيد ودخول 🚀</button>
+        </div>
+    </div>
+</section>
+
+<section id="about-screen" class="auth-page">
+    <div class="glass-box">
+        <h1 style="color: var(--primary);">أهلاً بك في UBC ✨</h1>
+        <p style="margin: 15px 0; line-height: 1.7;">أنت الآن عضو في منصة المبدع أنس علاء. نحن هنا لنحول فكرتك إلى براند عالمي بأدوات ذكية وبسيطة.</p>
+        <button class="btn btn-primary" style="width:100%" onclick="showMainPage('main-screen')">ابدأ رحلة الإبداع</button>
+    </div>
+</section>
+
+<header id="main-header">
+    <div class="user-badge" id="userBadge"></div>
+    <h2 style="letter-spacing: 2px;">.UBC</h2>
+</header>
+
+<section id="main-screen" class="page-section" style="padding:0;">
+    <div class="hero">
+        <h1>محرك البراندات الذكي</h1>
+        <p>صمم هويتك الآن بإشراف تقنية أنس علاء</p>
+    </div>
+    <div style="max-width: 600px; margin: -40px auto 30px; background: white; padding: 30px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center;">
+        <input type="text" id="brandInput" placeholder="اسم براندك الجديد...">
+        <select id="workType">
+            <option value="تجارة">📦 مجال التجارة</option>
+            <option value="تقنية">💻 مجال التقنية</option>
+            <option value="مطاعم">🍔 مجال المطاعم</option>
+            <option value="مسرح">🎭 مجال المسرح والإبداع</option>
+            <option value="فن">🎨 مجال الفنون البصرية</option>
+        </select>
+        <button class="btn btn-orange" onclick="generateLogo()">توليد اللوجو والهوية 🎨</button>
+        <button class="btn btn-primary" style="margin-top:10px; width:100%;" onclick="showMainPage('guides-screen')">فتح الموسوعة التعليمية 📚</button>
+    </div>
+    <div id="results" class="results-grid" style="padding: 0 5% 50px;"></div>
+</section>
+
+<section id="guides-screen" class="page-section">
+    <h1 style="text-align: center; margin-bottom: 30px; color: var(--primary);">موسوعة أنس ياسر لبناء البراندات 📚</h1>
+    <div class="results-grid">
+        <div class="card" onclick="toggleLecture('power-text')">
+            <i class="fas fa-signature" style="font-size:2.5rem; color:var(--primary);"></i>
+            <h3>قوة الاسم</h3>
+            <div id="power-text" class="lecture-content">
+                الاسم هو بصمة مشروعك. لكي تختار اسماً قوياً في مجال المسرح أو التجارة، يجب أن يكون سهلاً في النطق وله رنة موسيقية. تذكر أن الاسم هو ما يحكيه الناس عنك في غيابك.
+            </div>
+        </div>
+        <div class="card" onclick="toggleLecture('color-text')">
+            <i class="fas fa-palette" style="font-size:2.5rem; color:var(--secondary);"></i>
+            <h3>تناسق الألوان</h3>
+            <div id="color-text" class="lecture-content">
+                الألوان تؤثر على مشاعر المشاهد. الأحمر للطاقة، الأزرق للثقة، والبنفسجي للإبداع والمسرح. اختر باليتة ألوان تعبر عن "مود" براندك الخاص.
+            </div>
+        </div>
+        <div class="card" onclick="generateSlogan()">
+            <i class="fas fa-bullhorn" style="font-size:2.5rem; color:var(--accent);"></i>
+            <h3>السلوجان الذكي</h3>
+            <p id="sloganDisplay" style="margin-top:10px; font-weight:bold; color:var(--primary);"></p>
+            <p style="font-size: 0.8rem; color: #777;">(اضغط للتوليد 🔄)</p>
+        </div>
+    </div>
+    <button class="btn btn-primary" style="margin-top:30px;" onclick="showMainPage('main-screen')">العودة للمحرك</button>
+</section>
+
+<section id="premium-screen" class="page-section" style="text-align: center;">
+    <h1 style="color: var(--primary);">تطوير احترافي مع أنس علاء ✨</h1>
+    <div class="glass-box" style="max-width: 100%; margin-top: 20px; border: 2px solid var(--secondary);">
+        <p style="margin-bottom: 15px; font-weight: bold;">تواصل للحصول على (موشن جرافيك مسرحي - هوية بصرية كاملة)</p>
+        <button class="btn btn-whatsapp" onclick="contactAnas()">تحدث مع أنس عبر واتساب <i class="fab fa-whatsapp"></i></button>
+    </div>
+</section>
+
+<canvas id="downloadCanvas" width="800" height="800"></canvas>
+
+<script>
+    let generatedOTP = "";
+
+    // --- نظام العضوية ---
+    function handleSignup() {
+        const name = document.getElementById('regName').value;
+        const email = document.getElementById('regEmail').value;
+        const pass = document.getElementById('regPass').value;
+        if(!name || !email || !pass) return alert("من فضلك اكمل كل البيانات");
+        
+        localStorage.setItem(email, JSON.stringify({name, email, pass}));
+        alert("تم إنشاء حسابك! سجل دخولك الآن.");
+        showAuthPage('login-screen');
+    }
+
+    function requestOTP() {
+        const email = document.getElementById('loginEmail').value;
+        const pass = document.getElementById('loginPass').value;
+        const userData = JSON.parse(localStorage.getItem(email));
+
+        if(!userData) return alert("الإيميل ده غير مسجل!");
+        if(userData.pass !== pass) return alert("كلمة السر غلط! تأكد من بياناتك.");
+
+        // توليد كود متغير عشوائي في كل مرة
+        generatedOTP = Math.floor(1000 + Math.random() * 9000).toString();
+        alert("كود دخولك الجديد هو: " + generatedOTP);
+        
+        document.getElementById('login-step-main').style.display = 'none';
+        document.getElementById('otp-verify-area').style.display = 'block';
+    }
+
+    function finalVerify() {
+        const input = document.getElementById('loginOTP').value;
+        if(input === generatedOTP && generatedOTP !== "") {
+            const email = document.getElementById('loginEmail').value;
+            const user = JSON.parse(localStorage.getItem(email));
+            document.getElementById('userBadge').innerText = "المبدع: " + user.name;
+            showAuthPage('about-screen');
+        } else {
+            alert("كود التحقق خطأ! تأكد من الرقم.");
+        }
+    }
+
+    // --- توليد اللوجو ---
+    function generateLogo() {
+        const brand = document.getElementById('brandInput').value.trim();
+        const type = document.getElementById('workType').value;
+        if(!brand) return alert("اكتب اسم براندك الأول");
+        
+        document.getElementById('results').innerHTML = `
+            <div class="card">
+                <div style="width:120px; height:120px; background:var(--main-gradient); color:white; margin:0 auto 15px; display:flex; align-items:center; justify-content:center; border-radius:30px; font-size:4rem; font-weight:900; border:5px solid #fff; box-shadow:0 10px 20px rgba(0,0,0,0.1);">${brand[0].toUpperCase()}</div>
+                <h3>هوية ${brand}</h3>
+                <p>مجال: ${type}</p>
+                <button class="btn btn-primary" style="width:100%; margin-top:10px;" onclick="downloadAction('${brand}')">تحميل الشعار ✅</button>
+                <button class="btn btn-orange" style="margin-top:10px; width:100%;" onclick="showMainPage('premium-screen')">تطوير احترافي ✨</button>
+            </div>
+        `;
+    }
+
+    function downloadAction(name) {
+        const canvas = document.getElementById('downloadCanvas');
+        const ctx = canvas.getContext('2d');
+        const grd = ctx.createLinearGradient(0, 0, 800, 800);
+        grd.addColorStop(0, "#13483a"); grd.addColorStop(1, "#a29bfe");
+        ctx.fillStyle = grd; ctx.fillRect(0,0,800,800);
+        ctx.fillStyle = "white"; ctx.font = "bold 450px Cairo"; ctx.textAlign = "center";
+        ctx.fillText(name[0].toUpperCase(), 400, 520);
+        ctx.font = "bold 80px Cairo"; ctx.fillText(name.toUpperCase(), 400, 720);
+        const link = document.createElement('a');
+        link.download = `UBC-${name}.png`;
+        link.href = canvas.toDataURL();
+        link.click();
+    }
+
+    function toggleLecture(id) {
+        const el = document.getElementById(id);
+        el.style.display = (el.style.display === 'block') ? 'none' : 'block';
+    }
+
+    function generateSlogan() {
+        const brand = document.getElementById('brandInput').value || "براندك";
+        const slogans = ["إبداع يتجاوز الحدود", "فن المسرح برؤية جديدة", "الجودة هي لغتنا", "بصمتك في عالم الفن"];
+        document.getElementById('sloganDisplay').innerText = brand + ": " + slogans[Math.floor(Math.random()*slogans.length)];
+    }
+
+    function contactAnas() {
+        const brand = document.getElementById('brandInput').value || "مشروع جديد";
+        const msg = encodeURIComponent(`مرحباً أستاذ أنس علاء، أنا عضو في UBC وأريد تطوير براند باسم: (${brand})`);
+        window.open(`https://wa.me/201211650643?text=${msg}`, '_blank');
+    }
+
+    function showAuthPage(id) {
+        document.querySelectorAll('.auth-page, .page-section').forEach(s => s.style.display = 'none');
+        document.getElementById('main-header').style.display = 'none';
+        document.getElementById(id).style.display = 'flex';
+    }
+
+    function showMainPage(id) {
+        document.querySelectorAll('.auth-page, .page-section').forEach(s => s.style.display = 'none');
+        document.getElementById('main-header').style.display = 'flex';
+        document.getElementById(id).style.display = 'block';
+    }
+</script>
+</body>
+</html>
